@@ -149,7 +149,7 @@ var fire=function(e){['mousedown','mouseup','click'].forEach(function(t){e.dispa
 var wait=function(old){return new Promise(function(r){var n=0,i=setInterval(function(){if(pt()!=old||++n>60){clearInterval(i);setTimeout(r,300);}},150);});};
 var first=async function(){var f=btn('First page');if(f&&f.getAttribute('aria-disabled')=='false'){var o=pt();fire(f);await wait(o);}};
 var next=async function(){var n=btn('Next page');if(!n||n.getAttribute('aria-disabled')!='false')return 0;var o=pt();fire(n);await wait(o);return 1;};
-var css='<style>#pd{position:fixed;inset:0;z-index:99999;background:#fff;color:#222;overflow:auto;padding:12px 16px;font:15px sans-serif}#pd .b{border:1px solid #e20074;border-radius:6px;padding:7px 10px;background:#fff;color:#e20074}#pd .p{background:#e20074;color:#fff}#pd .r{padding:10px 0;border-bottom:1px solid #ddd;display:flex;gap:8px;align-items:center}#pd .r>div:first-child{flex:1;min-width:0}#pd .r>div+div{display:grid;gap:6px}#pd .k{font-size:20px;font-weight:bold}#pd .t{font-weight:bold;color:#e20074}#pd .x{color:#b00020;font-weight:bold}#pd small{color:#666}#pd .z{white-space:pre-wrap;background:#fff4dc;border-radius:6px;padding:6px 8px;margin-top:6px;font-size:13px}#pd a.b{text-decoration:none;text-align:center}#pd .r>div+div{grid-template-columns:1fr 1fr}#pd .d{background:#b00020;color:#fff;font-size:11px;padding:1px 5px;border-radius:3px;vertical-align:3px}#pd .op{background:#eef6ee;border-radius:8px;padding:8px 10px;margin:8px 0;font-size:14px}#pd .op b{display:block}.pdt{position:fixed;left:30%;bottom:24px;background:#222;color:#fff;padding:9px;border-radius:6px}</style>';
+var css='<style>#pd{position:fixed;inset:0;z-index:99999;background:#fff;color:#222;overflow:auto;padding:12px 16px;font:15px sans-serif}#pd .b{border:1px solid #e20074;border-radius:6px;padding:7px 10px;background:#fff;color:#e20074}#pd .p{background:#e20074;color:#fff}#pd .r{padding:10px 0;border-bottom:1px solid #ddd;display:flex;gap:8px;align-items:center}#pd .r>div:first-child{flex:1;min-width:0}#pd .r>div+div{display:grid;gap:6px}#pd .k{font-size:20px;font-weight:bold}#pd .t{font-weight:bold;color:#e20074}#pd .x{color:#b00020;font-weight:bold}#pd small{color:#666}#pd .z{white-space:pre-wrap;background:#fff4dc;border-radius:6px;padding:6px 8px;margin-top:6px;font-size:13px}#pd a.b{text-decoration:none;text-align:center}#pd .r>div+div{grid-template-columns:1fr 1fr}#pd .d{background:#b00020;color:#fff;font-size:11px;padding:1px 5px;border-radius:3px;vertical-align:3px}#pd .rt{background:#fdecee;border-left:4px solid #b00020;padding-left:8px}#pd .rx{background:#fff3e6;border-left:4px solid #d35400;padding-left:8px}#pd .dx{background:#d35400}#pd .op{background:#eef6ee;border-radius:8px;padding:8px 10px;margin:8px 0;font-size:14px}#pd .op b{display:block}.pdt{position:fixed;left:30%;bottom:24px;background:#222;color:#fff;padding:9px;border-radius:6px}</style>';
 P=D.createElement('div');P.id='pd';P.innerHTML=css+'<b>Učitavam naloge…</b>';D.body.appendChild(P);
 await first();
 var m={},L=[],pages=0,rows=0;
@@ -168,18 +168,20 @@ var cp=function(s){var fb=function(){var a=D.createElement('textarea');a.value=s
  navigator.clipboard?navigator.clipboard.writeText(s).then(function(){toast('Kopirano '+s);},fb):fb();};
 var main=function(o){return o.z.indexOf(Z)>=0?Z:o.z.join(' + ');};
 var busy=0,stop=0;
-var key=function(o){return o.r.t||o.r.s||'';},two=function(n){return(n<10?'0':'')+n;},nd=new Date(),today=nd.getFullYear()+'-'+two(nd.getMonth()+1)+'-'+two(nd.getDate());
-L=L.map(function(o,i){o.i=i;return o;}).sort(function(a,b){var x=key(a),y=key(b);if(!x&&!y)return a.i-b.i;if(!x)return 1;if(!y)return -1;return x<y?-1:x>y?1:a.i-b.i;});
-var isT=function(o){return key(o).slice(0,10)==today;},TD=L.filter(isT);
+var two=function(n){return(n<10?'0':'')+n;},nd=new Date(),today=nd.getFullYear()+'-'+two(nd.getMonth()+1)+'-'+two(nd.getDate());
+var ob=function(o){return (o.r.o||'').slice(0,10);},isT=function(o){return ob(o)==today;},isX=function(o){var d=ob(o);return !!d&&d<today;};
+var grp=function(o){return isT(o)?0:isX(o)?1:2;};
+L=L.map(function(o,i){o.i=i;return o;}).sort(function(a,b){return grp(a)-grp(b)||a.i-b.i;});
+var TD=L.filter(isT);
 var opt=function(o){return o.z.indexOf(Z)>=0||o.z.indexOf('FTTH kućna instalacija')>=0;};
 var tel=function(n){n=(n||'').replace(/[^\d+]/g,'');return /^385/.test(n)?'+'+n:n;};
 var nav=function(a){return 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(a);};
-var RT=(TD.length?TD:L).slice(0,10),route='https://www.google.com/maps/dir//'+RT.map(function(o){return encodeURIComponent(o.a);}).join('/');
-P.innerHTML=css+'<button id=pdx class=b style=float:right>Zatvori</button><b style=font-size:18px>Moji nalozi: '+L.length+' kartica</b><br><small>'+rows+' zadataka na listi'+(TD.length?' · danas '+TD.length:'')+' · <span id=pdn></span></small>'
- +'<p><a class="b p" target=_blank href="'+route+'">🧭 Ruta '+(TD.length?'danas':'svi')+' ('+RT.length+')</a> <button id=pdq class=b>Provjeri opremu</button></p><div id=pdo></div>'
+var RT=L.slice(0,10),route='https://www.google.com/maps/dir//'+RT.map(function(o){return encodeURIComponent(o.a);}).join('/');
+P.innerHTML=css+'<button id=pdx class=b style=float:right>Zatvori</button><b style=font-size:18px>Moji nalozi: '+L.length+' kartica</b><br><small>'+rows+' zadataka na listi'+(TD.length?' · obvezujuće danas '+TD.length:'')+' · <span id=pdn></span></small>'
+ +'<p><a class="b p" target=_blank href="'+route+'">🧭 Ruta ('+RT.length+(L.length>10?' od '+L.length:'')+')</a> <button id=pdq class=b>Provjeri opremu</button></p><div id=pdo></div>'
  +L.map(function(o,i){var tm=dt(o.r.t),st=dt(o.r.s),ob=dt(o.r.o);
-  return'<div class=r><div><span class=k>'+o.k+'</span>'+(isT(o)?' <span class=d>DANAS</span>':'')+'<br><span class=t>'+es(main(o))+'</span><br>'+es(o.a)+'<br><small>'+es(o.n+(o.bs?' · Bitstream':''))+(o.tel?' · '+es(o.tel):'')+'</small>'
-  +(tm?'<br><span class=x>Termin: '+tm+'</span>':'')+(st?'<br><span class=x>Početak: '+st+'</span>':'')+(ob?'<br><small>Obvezujuće: '+ob+'</small>':'')+(o.tc?'<br><small>Usluge: '+es(o.tc)+'</small>':'')+'</div>'
+  return'<div class="r'+(isT(o)?' rt':isX(o)?' rx':'')+'"><div><span class=k>'+o.k+'</span>'+(isT(o)?' <span class=d>DANAS</span>':isX(o)?' <span class="d dx">ISTEKLO</span>':'')+'<br><span class=t>'+es(main(o))+'</span><br>'+es(o.a)+'<br><small>'+es(o.n+(o.bs?' · Bitstream':''))+(o.tel?' · '+es(o.tel):'')+'</small>'
+  +(tm?'<br><span class=x>Termin: '+tm+'</span>':'')+(st?'<br><span class=x>Početak: '+st+'</span>':'')+(ob?'<br>'+(isT(o)||isX(o)?'<span class=x>':'<small>')+'Obvezujuće: '+ob+(isT(o)||isX(o)?'</span>':'</small>'):'')+(o.tc?'<br><small>Usluge: '+es(o.tc)+'</small>':'')+'</div>'
   +'<div><button class="b p" data-o='+i+'>Otvori</button>'+(o.tel?'<a class=b href="tel:'+tel(o.tel)+'">📞 Nazovi</a>':'<span></span>')+'<a class=b target=_blank href="'+nav(o.a)+'">🧭 Navigacija</a><button class=b data-c='+i+'>Kopiraj</button><button class=b data-z='+i+'>Zabilješka</button></div></div>';}).join('')
  +(L.length?'':'<p>Nema naloga.</p>');
 var note=async function(o,el){if(busy)return;busy=1;var z=el.querySelector('.z')||el.appendChild(D.createElement('div'));z.className='z';z.textContent='Učitavam zabilješku…';
